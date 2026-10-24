@@ -1,0 +1,895 @@
+/* ===========================================================================
+   Document Review — design system
+
+   Palette and rhythm are taken from the supplied mockups. The *behaviour* in
+   those images is not: they show document versions, resubmission, reviewer
+   assignment, approval chains, due dates, a custom PDF toolbar and one account
+   holding both roles. None of that exists in this product, so none of it is
+   styled here.
+
+   Type: a serif for major page titles only; everything else is the system
+   sans. Both are local stacks — no webfont request, so nothing shifts on load.
+   =========================================================================== */
+
+:root {
+  /* Surfaces */
+  --forest: #173e32;        /* sidebar, primary actions */
+  --forest-hover: #1f5443;
+  --forest-ink: #0e271f;    /* pressed / deepest */
+  --canvas: #f7f7f3;        /* warm ivory page */
+  --surface: #ffffff;
+  --surface-sunken: #f1f1ec;
+
+  /* Text — contrast verified against the surface each one is used on */
+  --ink: #1b1b18;           /* 15.8:1 on canvas */
+  --ink-soft: #55564f;      /* 7.0:1 on canvas */
+  --ink-faint: #6b6c64;     /* 5.2:1 on canvas, metadata only */
+  --on-forest: #f4f6f4;     /* 13.4:1 on forest */
+  --on-forest-soft: #b9c7c0; /* 6.4:1 on forest */
+
+  /* Lines */
+  --line: #e2e2db;
+  --line-strong: #cfcfc6;
+
+  /* Status — each is paired with text and an icon, never colour alone */
+  --pending-bg: #eef1fb;
+  --pending-ink: #2f3f7a;
+  --approved-bg: #e6f4ea;
+  --approved-ink: #1a5b32;
+  --rejected-bg: #fdecea;
+  --rejected-ink: #8c2016;
+  --warning-bg: #fdf4e3;
+  --warning-ink: #6f4e14;
+
+  --focus: #2563eb;
+
+  /* 8 / 16 / 24 / 32 rhythm */
+  --s1: 8px;
+  --s2: 16px;
+  --s3: 24px;
+  --s4: 32px;
+  --radius: 8px;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 72px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { margin: 0; line-height: 1.25; }
+
+/* Serif is reserved for major page titles. */
+.page-title {
+  font-family: var(--serif);
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.section-title { font-size: 0.95rem; font-weight: 650; letter-spacing: 0.01em; }
+
+.muted { color: var(--ink-soft); }
+.faint { color: var(--ink-faint); }
+.small { font-size: 0.8125rem; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================ app shell ================================== */
+
+.shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-w);
+  flex: 0 0 var(--sidebar-w);
+  background: var(--forest);
+  color: var(--on-forest);
+  display: flex;
+  flex-direction: column;
+  padding: var(--s3) var(--s2);
+  gap: var(--s3);
+  transition: width 160ms ease, flex-basis 160ms ease;
+}
+.sidebar--collapsed { width: var(--sidebar-w-collapsed); flex-basis: var(--sidebar-w-collapsed); }
+.sidebar--collapsed .sidebar__label,
+.sidebar--collapsed .identity__text { display: none; }
+.sidebar--collapsed .nav__item { justify-content: center; }
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  font-weight: 650;
+  min-height: 32px;
+}
+
+.sidebar__toggle {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--on-forest-soft);
+  border-radius: var(--radius);
+  padding: 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.sidebar__toggle:hover { background: rgba(255, 255, 255, 0.08); color: var(--on-forest); }
+.sidebar--collapsed .sidebar__toggle { margin-left: 0; }
+
+.nav { display: flex; flex-direction: column; gap: 4px; }
+
+.nav__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  min-height: 44px;              /* comfortable target */
+  border-radius: var(--radius);
+  color: var(--on-forest-soft);
+  text-decoration: none;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.nav__item:hover { background: rgba(255, 255, 255, 0.08); color: var(--on-forest); }
+.nav__item--active {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--on-forest);
+  font-weight: 600;
+}
+/* A double-digit count was enough to wrap "My submissions" onto two lines.
+   The label stays on one line and truncates instead; the count never moves. */
+.nav__item > .sidebar__label {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav__count {
+  flex: 0 0 auto;
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--on-forest);
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.sidebar--collapsed .nav__count { display: none; }
+
+.sidebar__foot { margin-top: auto; display: flex; flex-direction: column; gap: var(--s1); }
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: var(--s2);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.identity__avatar {
+  width: 32px; height: 32px;
+  flex: 0 0 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  display: grid; place-items: center;
+  font-size: 0.75rem; font-weight: 650;
+}
+.identity__text { min-width: 0; }
+.identity__name { font-weight: 600; }
+.identity__role { color: var(--on-forest-soft); text-transform: capitalize; }
+
+.signout {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: var(--on-forest);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  min-height: 42px;
+  font: inherit;
+  cursor: pointer;
+}
+.signout:hover { background: rgba(255, 255, 255, 0.1); }
+.sidebar--collapsed .signout { justify-content: center; }
+
+.main { flex: 1 1 auto; min-width: 0; padding: var(--s4); }
+
+/* Only the content region animates between routes. The sidebar deliberately
+   does not: keeping the navigation rock-steady while the panel beside it
+   changes is what makes this read as one application rather than a sequence
+   of page loads. Fading the whole screen would look like a reload, which is
+   the feeling we are avoiding.
+
+   Opacity and transform only — both GPU-composited, so this cannot stutter
+   even while a large PDF is loading beside it. Direction-agnostic, so going
+   back needs no separate animation. */
+.main__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  /* `backwards`, not `both`. With `both` the final keyframe keeps applying
+     after the animation ends, and even `transform: none` computes to an
+     identity matrix — which still makes this element the containing block for
+     the details panel, breaking its full-screen overlay on narrow screens.
+     `backwards` applies only the FROM state before the animation starts, so
+     afterwards the element carries no transform at all. */
+  animation: page-enter 260ms cubic-bezier(0.33, 1, 0.68, 1) backwards;
+}
+
+/* The route frame arrives first; the content that had to be fetched arrives
+   when it is ready. Animating only on route mount meant the motion was spent
+   on the loading skeleton, and the real content appeared with no transition
+   at all — which is why the effect was easy to miss. This class goes on the
+   loaded content so the movement accompanies the thing you actually came to
+   read. */
+.enter {
+  /* 320ms and 18px. The first attempt used 180ms/8px with a hard-decelerating
+     curve, which measured as 55% complete by 46ms — technically running, but
+     over before the eye registers it. Perceptibility, not duration, is the
+     thing being tuned here. */
+  animation: page-enter 320ms cubic-bezier(0.33, 1, 0.68, 1) backwards;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.topbar { display: none; }
+
+/* ============================ page furniture ============================= */
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s3);
+}
+.page-head__sub { margin-top: 4px; color: var(--ink-soft); }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  flex-wrap: wrap;
+  margin-bottom: var(--s2);
+}
+.toolbar__spacer { margin-left: auto; }
+
+/* ============================ controls =================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s1);
+  min-height: 40px;
+  padding: 9px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.btn:hover:not(:disabled) { background: var(--surface-sunken); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn--primary { background: var(--forest); border-color: var(--forest); color: #fff; }
+.btn--primary:hover:not(:disabled) { background: var(--forest-hover); border-color: var(--forest-hover); }
+
+.btn--danger { color: var(--rejected-ink); border-color: #e5b4ae; background: var(--surface); }
+.btn--danger:hover:not(:disabled) { background: var(--rejected-bg); }
+
+.btn--ghost { border-color: transparent; background: transparent; }
+.btn--ghost:hover:not(:disabled) { background: var(--surface-sunken); }
+
+.btn--icon { padding: 9px; min-width: 40px; }
+
+/* Filter chips carry their own count. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+  text-decoration: none;
+}
+.chip:hover { background: var(--surface-sunken); }
+/* Buttons announce selection with aria-pressed; links with aria-current. */
+.chip[aria-pressed='true'],
+.chip[aria-current='page'] {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: #fff;
+}
+.chip__count {
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 0 7px;
+  font-size: 0.8125rem;
+}
+.chip[aria-pressed='true'] .chip__count,
+.chip[aria-current='page'] .chip__count { background: rgba(255, 255, 255, 0.2); color: #fff; }
+
+label, .label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+input[type='text'], input[type='email'], input[type='password'], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+input:focus-visible, textarea:focus-visible { border-color: var(--forest); }
+textarea { resize: vertical; min-height: 96px; }
+
+.field { margin-bottom: var(--s3); }
+.field__hint { color: var(--ink-soft); margin: 0 0 6px; }
+.field__error { color: var(--rejected-ink); margin: 6px 0 0; font-weight: 550; }
+
+/* ============================ cards and panels =========================== */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+/* Table height follows its rows — no oversized empty bordered area. */
+.table-wrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th {
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+  padding: 12px var(--s2);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.table td { padding: 14px var(--s2); border-bottom: 1px solid var(--line); vertical-align: middle; }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover { background: var(--surface-sunken); }
+
+.row--selected { background: #eaf2ee !important; }
+.row--selected td:first-child { box-shadow: inset 3px 0 0 var(--forest); }
+
+.doc-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.doc-cell__icon {
+  width: 36px; height: 36px; flex: 0 0 36px;
+  border-radius: var(--radius);
+  background: var(--rejected-bg);
+  color: var(--rejected-ink);
+  display: grid; place-items: center;
+}
+.doc-cell__text { min-width: 0; }
+.doc-cell__title {
+  font-weight: 600; color: var(--ink);
+  background: none; border: 0; padding: 0; font-family: inherit; font-size: inherit;
+  cursor: pointer; text-align: left;
+}
+.doc-cell__title:hover { text-decoration: underline; }
+a.doc-cell__title { text-decoration: none; }
+
+.layout-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: var(--s3);
+  align-items: start;
+}
+
+.panel { padding: var(--s3); }
+.panel__head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--s2); margin-bottom: var(--s2);
+}
+.panel__title { font-family: var(--serif); font-size: 1.3rem; font-weight: 600; }
+.panel__section { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.panel__section:first-of-type { border-top: 0; padding-top: 0; }
+
+.meta-list { margin: 0; }
+.meta-list dt { font-size: 0.8125rem; color: var(--ink-soft); margin-top: var(--s2); }
+.meta-list dt:first-child { margin-top: 0; }
+.meta-list dd { margin: 2px 0 0; }
+
+/* ============================ status ===================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge--pending { background: var(--pending-bg); color: var(--pending-ink); }
+.badge--approved { background: var(--approved-bg); color: var(--approved-ink); }
+.badge--rejected { background: var(--rejected-bg); color: var(--rejected-ink); }
+
+.notice {
+  display: flex;
+  gap: 10px;
+  padding: 12px var(--s2);
+  border-radius: var(--radius);
+  margin-bottom: var(--s2);
+}
+.notice--error { background: var(--rejected-bg); color: var(--rejected-ink); border: 1px solid #f0c3bd; }
+.notice--warning { background: var(--warning-bg); color: var(--warning-ink); border: 1px solid #e6d2a4; }
+.notice--success { background: var(--approved-bg); color: var(--approved-ink); border: 1px solid #bcdcc6; }
+.notice__body { min-width: 0; }
+.notice__body p { margin: 0; }
+
+.empty {
+  display: grid;
+  place-items: center;
+  gap: var(--s1);
+  padding: var(--s4) var(--s3);
+  text-align: center;
+  color: var(--ink-soft);
+}
+.empty__icon { color: var(--line-strong); }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-sunken) 25%, #e8e8e2 37%, var(--surface-sunken) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease infinite;
+  border-radius: 4px;
+  height: 14px;
+}
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+/* ============================ activity =================================== */
+
+.activity { list-style: none; margin: 0; padding: 0; }
+.activity__item { display: flex; gap: 12px; padding-bottom: var(--s2); position: relative; }
+.activity__item:last-child { padding-bottom: 0; }
+.activity__item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 11px; top: 26px; bottom: 2px;
+  width: 2px;
+  background: var(--line);
+}
+.activity__dot {
+  width: 24px; height: 24px; flex: 0 0 24px;
+  border-radius: 999px;
+  display: grid; place-items: center;
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  z-index: 1;
+}
+.activity__dot--approved { background: var(--approved-bg); color: var(--approved-ink); }
+.activity__dot--rejected { background: var(--rejected-bg); color: var(--rejected-ink); }
+
+/* ============================ upload ===================================== */
+
+.dropzone {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: var(--s3);
+  text-align: center;
+}
+.dropzone--over { border-color: var(--forest); background: #eef4f1; }
+
+.file-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.file-card__text { min-width: 0; flex: 1 1 auto; }
+.file-card__actions { display: flex; gap: var(--s1); flex-shrink: 0; }
+
+/* ============================ reviewer detail ============================ */
+
+.breadcrumb {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ink-soft); text-decoration: none; font-weight: 550;
+  margin-bottom: var(--s2);
+}
+.breadcrumb:hover { color: var(--ink); }
+
+.preview {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.preview__bar {
+  display: flex; align-items: center; gap: var(--s1);
+  padding: 10px var(--s2);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-sunken);
+}
+/* Browser-native PDF rendering. No custom page/zoom toolbar is built. */
+.preview__frame { width: 100%; height: min(72vh, 820px); border: 0; display: block; background: #f4f4ef; }
+/* Images are contained, never cropped or stretched: a reviewer must see the
+   whole thing exactly as submitted. The chequered-neutral background makes a
+   transparent PNG's edges visible rather than blending into the card. */
+.preview__frame--image {
+  height: auto;
+  max-height: min(72vh, 820px);
+  object-fit: contain;
+  background: var(--surface-sunken);
+  padding: var(--s2);
+}
+
+.preview__fallback { padding: var(--s4); text-align: center; color: var(--ink-soft); }
+
+.decision-actions { display: flex; gap: var(--s1); margin-top: var(--s2); }
+.decision-actions .btn { flex: 1 1 auto; }
+
+/* A single centred card, for the full-page states that are not the sign-in
+   form: loading an identity, and an account that is authenticated but not
+   provisioned. These used the login page's classes until the login became a
+   two-panel grid, which left them laid out as half of a split screen. */
+.standalone {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--s3);
+  background: var(--canvas);
+}
+.standalone__card { width: 100%; max-width: 26rem; padding: var(--s4); }
+.standalone__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: var(--s2);
+  color: var(--forest);
+  font-weight: 650;
+}
+
+/* ============================ login ======================================
+
+   Two panels: the product's own forest green on one side, the form on the
+   other. A lone card centred in an empty page gives no sense of what is
+   behind the door, and at desktop widths it looks unfinished.
+
+   Everything in the brand panel describes what this product actually does.
+   No testimonials, no statistics, no customer logos — the usual login-page
+   filler would all be invented.
+   ======================================================================== */
+
+.auth {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+}
+
+.auth__brand-panel {
+  position: relative;
+  overflow: hidden;
+  background: var(--forest);
+  color: var(--on-forest);
+  display: flex;
+  align-items: center;
+  padding: var(--s4) clamp(var(--s4), 6vw, 88px);
+}
+
+/* An oversized, barely-there leaf. Texture, not decoration competing for
+   attention — it sits well below the text in contrast. */
+.auth__watermark {
+  position: absolute;
+  right: -140px;
+  bottom: -150px;
+  color: #ffffff;
+  opacity: 0.045;
+  pointer-events: none;
+}
+
+.auth__brand-content { position: relative; max-width: 30rem; }
+
+.auth__wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 650;
+  font-size: 1.05rem;
+  margin-bottom: var(--s4);
+}
+.auth__wordmark--compact { display: none; color: var(--forest); margin-bottom: var(--s3); }
+
+.auth__headline {
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 1.1rem + 1.9vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--s4);
+}
+
+.auth__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
+.auth__step { display: flex; gap: 14px; align-items: flex-start; }
+.auth__step-icon {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.12);
+  display: grid;
+  place-items: center;
+}
+.auth__step strong { display: block; font-weight: 600; }
+.auth__step-detail { color: var(--on-forest-soft); font-size: 0.9375rem; }
+
+.auth__form-panel {
+  display: grid;
+  place-items: center;
+  padding: var(--s4) var(--s3);
+  background: var(--canvas);
+}
+.auth__form { width: 100%; max-width: 23rem; }
+.auth__title { font-size: clamp(1.6rem, 1.3rem + 1vw, 2rem); }
+.auth__subtitle { margin: 6px 0 var(--s4); }
+.auth__footnote { margin: var(--s3) 0 0; }
+
+.btn--block { width: 100%; }
+
+@media (max-width: 880px) {
+  /* The brand panel is the first thing to go: on a phone the form is what
+     the user came for, and a tall green panel above it is just scrolling. */
+  .auth { grid-template-columns: minmax(0, 1fr); }
+  .auth__brand-panel { display: none; }
+  .auth__wordmark--compact { display: flex; }
+  .auth__form-panel { align-content: center; }
+}
+
+/* ============================ narrow screens ============================= */
+
+/* Side by side needs real room: a sidebar, a table and a 380px panel do not
+   fit comfortably below roughly 1080px, and squeezing them clips the table's
+   columns. Below this, details become a full page instead. */
+@media (max-width: 1080px) {
+  .layout-split { grid-template-columns: minmax(0, 1fr); }
+
+  /* Stacked, the preview must not push the decision controls off-screen:
+     the reviewer should see the document and the actions without hunting. */
+  .preview__frame { height: 52vh; }
+
+  /* The details panel becomes a full page rather than a squeezed column. */
+  .panel--overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    border-radius: 0;
+    border: 0;
+    overflow-y: auto;
+    padding: var(--s3);
+  }
+}
+
+@media (max-width: 760px) {
+  .main { padding: var(--s2); }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+    padding: 10px var(--s2);
+    background: var(--forest);
+    color: var(--on-forest);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+  .topbar__brand { font-weight: 650; }
+
+  .shell { flex-direction: column; }
+
+  /* Navigation becomes a menu. */
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(86vw, 300px);
+    flex-basis: auto;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 180ms ease;
+  }
+  .sidebar--open { transform: translateX(0); }
+  .sidebar--collapsed { width: min(86vw, 300px); }
+  .sidebar--collapsed .sidebar__label,
+  .sidebar--collapsed .identity__text,
+  .sidebar--collapsed .nav__count { display: revert; }
+
+  .scrim {
+    position: fixed; inset: 0; z-index: 45;
+    background: rgba(14, 39, 31, 0.45);
+    border: 0;
+  }
+
+  .preview__frame { height: 58vh; }
+  .decision-actions { flex-direction: column; }
+  .page-head { align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No route transition at all, rather than a 1ms one. */
+  .main__inner, .enter { animation: none; opacity: 1; transform: none; }
+
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Visually hidden but available to screen readers and still focusable. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Narrow screens: a table becomes a list of cards.
+
+   Four columns on a phone means either horizontal scrolling or unreadably
+   narrow cells. Each row is restacked, with the column name shown beside its
+   value. The markup stays a real table, so it is still announced as one.
+   --------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .table-wrap { overflow-x: visible; }
+
+  .table thead {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+
+  .table tr {
+    padding: var(--s2);
+    border-bottom: 1px solid var(--line);
+  }
+  .table tbody tr:last-child { border-bottom: 0; }
+  .table tbody tr:hover { background: transparent; }
+
+  .table td {
+    border: 0;
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .table td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 104px;
+    color: var(--ink-soft);
+    font-size: 0.8125rem;
+  }
+
+  /* The document cell leads the card, so it needs no label. */
+  .table td:first-child { padding-bottom: var(--s1); }
+  .row--selected td:first-child { box-shadow: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Clickable rows.
+
+   The whole row opens the document, so it must look like it does. The title
+   inside stays a real link or button — that is what keyboard users tab to, and
+   what carries right-click and open-in-new-tab — while the row handles clicks
+   that land anywhere else.
+   --------------------------------------------------------------------------- */
+.table tbody tr[data-clickable] { cursor: pointer; }
+
+/* When the title inside has focus, outline the whole row, so a keyboard user
+   can see which row they are on rather than just a few characters of text. */
+.table tbody tr[data-clickable]:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+.table tbody tr[data-clickable]:focus-within .doc-cell__title:focus-visible {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Activity indicator.
+
+   Indeterminate by design — nothing here can honestly measure progress, so
+   nothing pretends to. The button's text says what is happening; this just
+   shows that it is still happening.
+   --------------------------------------------------------------------------- */
+.spinner {
+  display: inline-block;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.85;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* A frozen arc reads as a broken image. The text already says "Uploading…",
+   so for anyone who has asked for less motion the spinner simply goes away. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner { display: none; }
+}
+
+/* Buttons whose label changes while working must not resize and shove the
+   layout sideways. */
+.btn--steady { min-width: 11.5rem; }
+.btn--steady-sm { min-width: 7.5rem; }
+
+/* A row that was just created, called out briefly so the user can see their
+   submission actually landed.
+
+   The fade is an animation rather than a state change, so the colour always
+   settles on its own. Even if the component's own timer were wrong again, the
+   row could not stay highlighted indefinitely. */
+.row--just-added td {
+  animation: just-added 2.2s ease-out forwards;
+}
+
+@keyframes just-added {
+  0%   { background: var(--approved-bg); }
+  55%  { background: var(--approved-bg); }
+  100% { background: transparent; }
+}
+
+/* No flash for anyone who has asked for reduced motion — the confirmation
+   message above the table already says what happened. */
+@media (prefers-reduced-motion: reduce) {
+  .row--just-added td { animation: none; background: transparent; }
+}
