@@ -15,7 +15,17 @@ Two roles, three states, one legal transition. That is the whole product, and ke
 | **Video walkthrough** | _not recorded yet_ |
 | **Hosted demo** | _not deployed yet. `render.yaml` is written and untested._ |
 
-Both are marked honestly rather than left blank. Neither exists at the time of writing, and this README does not claim otherwise.
+### Demo accounts
+
+| Email | Role | Password |
+| --- | --- | --- |
+| `submitter-a@example.com` | Submitter | `Dr5LnpiyHxssyoMU5hMW!7` |
+| `submitter-b@example.com` | Submitter | `DruAgl1GuqvHrnQQeg1f!7` |
+| `reviewer@example.com` | Reviewer | `DrdZv7ib0DKT4xaWnMAb!7` |
+
+Two submitters rather than one, because the most interesting thing to try is that submitter A genuinely cannot see submitter B's documents, and that needs two accounts.
+
+These are throwaway accounts on a demo project, in a private repository, which is the only reason passwords appear in a file at all. In anything real they would not be here, and the provisioning command exists so that you never have to put them in one: it prompts for each password and writes none of them to disk.
 
 ---
 
@@ -102,9 +112,7 @@ It creates three accounts:
 | `submitter-b@example.com` | submitter | Priya Shah |
 | `reviewer@example.com` | reviewer | Sam Patel |
 
-Two submitters rather than one, so you can check that submitter A genuinely cannot see submitter B's documents. That is the most interesting thing to try, and it needs two accounts to try it.
-
-You choose the passwords when the command prompts. They are not in this repository, and no password appears in any committed file.
+You choose the passwords when the command prompts. The ones listed under [Demo accounts](#demo-accounts) are for the hosted demo; a local setup uses whatever you type here.
 
 Start the API:
 
