@@ -1,0 +1,38 @@
+# Secrets — never commit. Only the .env.example files are tracked.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.sqlite3
+
+# Node
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# Test + tooling output
+.pytest_cache/
+coverage/
+htmlcov/
+playwright-report/
+test-results/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Manual-testing fixtures, not part of the app
+samples/
+
+# The owner's own implementation brief. A working document that directed the
+# build, not part of the deliverable.
+CLAUDE_BUILD_BRIEF.md
