@@ -14,6 +14,11 @@ services:
     runtime: python
     rootDir: backend
     plan: free
+    # Nearest free region to a Supabase project in ap-northeast-2 (Seoul).
+    # The default is Oregon, which would put the Pacific between the API and
+    # its database on every query. Measured locally, one round trip to Seoul
+    # is already ~156ms; from Oregon it would be considerably worse.
+    region: singapore
     # Migrations run at build time. Render's free plan has no pre-deploy hook,
     # so this is the supported place for them. They are additive and safe to
     # re-run; the build fails loudly if one fails.
@@ -28,10 +33,14 @@ services:
         value: "False"
       - key: DJANGO_SECRET_KEY
         generateValue: true
-      - key: DJANGO_ALLOWED_HOSTS
-        sync: false      # the API's own .onrender.com hostname
+      # DJANGO_ALLOWED_HOSTS is not listed: settings.py reads Render's own
+      # RENDER_EXTERNAL_HOSTNAME, so the service's hostname is picked up
+      # automatically rather than pasted in by hand after the fact.
+      # The static site's exact origin, never a wildcard. It does not exist
+      # until that service is created, so this is set after the first deploy.
+      # A bare hostname is accepted: settings.py adds the https scheme.
       - key: CORS_ALLOWED_ORIGINS
-        sync: false      # the static site's exact https origin, never a wildcard
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SECRET_KEY

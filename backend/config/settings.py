@@ -27,7 +27,14 @@ def env_list(name: str, default: str = "") -> list[str]:
 
 SECRET_KEY = required_env("DJANGO_SECRET_KEY")
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+# Render supplies the service's own hostname, which is not known until the
+# service exists. Reading it removes a manual step that is easy to get wrong
+# and whose only symptom is a confusing 400 on every request.
+_render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if _render_host and _render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_host)
 
 INSTALLED_APPS = [
     # No django.contrib.contenttypes: it exists to let other Django features
@@ -87,7 +94,14 @@ REST_FRAMEWORK = {
 }
 
 # Precise origins only. A wildcard would be an access-control hole, not a fix.
-CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "http://localhost:5173")
+#
+# An origin needs a scheme, and pasting a bare hostname from a dashboard is an
+# easy mistake whose only symptom is a CORS failure that looks like the API is
+# down. Anything without a scheme is assumed to be https.
+CORS_ALLOWED_ORIGINS = [
+    origin if "://" in origin else f"https://{origin}"
+    for origin in env_list("CORS_ALLOWED_ORIGINS", "http://localhost:5173")
+]
 CORS_ALLOW_HEADERS = ["authorization", "content-type"]
 
 SUPABASE_URL = required_env("SUPABASE_URL")
