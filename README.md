@@ -12,8 +12,13 @@ Two roles, three states, one legal transition. That is the whole product, and ke
 
 | | |
 | --- | --- |
+| **Live demo** | https://document-review-web.onrender.com |
+| **API** | https://document-review-api-ibx2.onrender.com |
 | **Video walkthrough** | _not recorded yet_ |
-| **Hosted demo** | _not deployed yet. `render.yaml` is written and untested._ |
+
+**The first request will be slow.** Render's free web services sleep after 15 minutes without traffic and take about 35 seconds to wake, which is what I measured. The app notices and says the server may be waking rather than spinning in silence, but it is still a wait. Everything after that is normal.
+
+The video is marked as missing rather than left blank, because it is.
 
 ### Demo accounts
 
@@ -706,7 +711,7 @@ Stated plainly, because finding these yourself is worse than reading them here.
 - **Not atomic across storage and database.** Orphaned files remain possible.
 - **No pagination**, and the counts optimisation depends on that.
 - **Decisions are final.** No reopening, no resubmission, no versions.
-- **Free tier behaviour.** Render's free web services sleep after 15 minutes and take about a minute to wake, so a first request after idle is slow. The frontend detects this and says the server may be waking rather than spinning silently. Supabase free projects pause after a week of inactivity.
+- **Free tier behaviour.** Measured on the live deployment: a cold start takes about 35 seconds, after which requests settle to roughly 0.8 to 3 seconds. The frontend says the server may be waking rather than spinning silently. Supabase free projects also pause after a week of inactivity, so a demo left untouched will need resuming.
 - **The tests need real credentials** and will not run without them.
 
 ---
