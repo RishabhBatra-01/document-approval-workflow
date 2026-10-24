@@ -36,3 +36,6 @@ samples/
 # The owner's own implementation brief. A working document that directed the
 # build, not part of the deliverable.
 CLAUDE_BUILD_BRIEF.md
+
+# Walkthrough preparation notes. Yours, not part of the deliverable.
+docs/walkthrough-script.md
