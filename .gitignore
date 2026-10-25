@@ -33,6 +33,10 @@ test-results/
 # Manual-testing fixtures, not part of the app
 samples/
 
+# The supplied UI mockups. Reference material that came with the assessment,
+# not this project's work to redistribute. Kept locally, not committed.
+docs/design/
+
 # The owner's own implementation brief. A working document that directed the
 # build, not part of the deliverable.
 CLAUDE_BUILD_BRIEF.md
