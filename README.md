@@ -14,11 +14,9 @@ Two roles, three states, one legal transition. That is the whole product, and ke
 | --- | --- |
 | **Live demo** | https://document-review-web.onrender.com |
 | **API** | https://document-review-api-ibx2.onrender.com |
-| **Video walkthrough** | _not recorded yet_ |
+| **Video walkthrough** | https://www.loom.com/share/7d82dff7f83248c1ad1f0837e7312166 |
 
 **The first request will be slow.** Render's free web services sleep after 15 minutes without traffic and take about 35 seconds to wake, which is what I measured. The app notices and says the server may be waking rather than spinning in silence, but it is still a wait. Everything after that is normal.
-
-The video is marked as missing rather than left blank, because it is.
 
 ### Demo accounts
 
