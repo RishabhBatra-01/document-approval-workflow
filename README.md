@@ -16,7 +16,12 @@ Two roles, three states, one legal transition. That is the whole product, and ke
 | **API** | https://document-review-api-ibx2.onrender.com |
 | **Video walkthrough** | https://www.loom.com/share/7d82dff7f83248c1ad1f0837e7312166 |
 
-**The first request will be slow.** Render's free web services sleep after 15 minutes without traffic and take about 35 seconds to wake, which is what I measured. The app notices and says the server may be waking rather than spinning in silence, but it is still a wait. Everything after that is normal.
+> [!IMPORTANT]
+> **The first request takes about 45 seconds. Please open the live demo a minute before you need it.**
+>
+> The API runs on Render's free tier, which puts a service to sleep after 15 minutes without traffic. The next request has to wake it, and that wake up is the wait. I measured about 45 seconds; Render's own documentation says roughly a minute.
+>
+> The app tells you the server may be waking rather than spinning in silence, but it is still a wait. Everything after it is normal, roughly 0.8 to 3 seconds.
 
 ### Demo accounts
 
@@ -709,7 +714,7 @@ Stated plainly, because finding these yourself is worse than reading them here.
 - **Not atomic across storage and database.** Orphaned files remain possible.
 - **No pagination**, and the counts optimisation depends on that.
 - **Decisions are final.** No reopening, no resubmission, no versions.
-- **Free tier behaviour.** Measured on the live deployment: a cold start takes about 35 seconds, after which requests settle to roughly 0.8 to 3 seconds. The frontend says the server may be waking rather than spinning silently. Supabase free projects also pause after a week of inactivity, so a demo left untouched will need resuming.
+- **Free tier behaviour.** Measured on the live deployment: a cold start takes about 45 seconds, after which requests settle to roughly 0.8 to 3 seconds. The frontend says the server may be waking rather than spinning silently. I deliberately did not add a keep alive pinger to stop it sleeping: Render allows 750 free instance hours a month, and keeping one service awake around the clock costs 744 of them, so an overrun would suspend the service outright rather than merely make it slow. A warning and a warm up click are the safer trade. Supabase free projects also pause after a week of inactivity, so a demo left untouched will need resuming.
 - **The tests need real credentials** and will not run without them.
 
 ---
