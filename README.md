@@ -10,15 +10,23 @@ Two roles, three states, one legal transition. That is the whole product, and ke
 
 ### What it looks like
 
-Two roles, two different screens. Both of these are the live deployment, not a mockup.
+Four screens, in the order a document moves through them. All of these are the live deployment, not a mockup.
 
-**A submitter sees their own documents and nothing else,** each one carrying its status, with filters and counts across the top.
+**Signing in.** There is no sign up link, because accounts are created by an administrator rather than claimed by whoever turns up.
+
+![The sign in page: a dark green panel on the left explaining the three steps, submit, review and decision, and a sign in form on the right asking for email and password](docs/screenshots/login.png)
+
+**A submitter sees their own documents and nobody else's,** each one carrying its status, with filters and counts across the top.
 
 ![The My submissions screen: a table of seven documents, each with an approved, pending or rejected badge and the date it was submitted, above it filter chips reading All, Pending, Approved and Rejected with counts](docs/screenshots/submitter.png)
 
-**A reviewer reads the document in the browser and decides beside it.** Feedback is optional when approving and required when rejecting, and the activity trail records who did what and when.
+**A reviewer reads the document in the browser and decides beside it.** Feedback is optional when approving and required when rejecting.
 
 ![A reviewer viewing a submitted expense claim: the document is rendered in the left pane, and a panel on the right holds the submitter's context, a feedback box, Approve and Reject buttons, and an activity trail](docs/screenshots/reviewer.png)
+
+**And the submitter gets the answer.** Opening a decided document shows the outcome, the reviewer's comment, and a trail of who did what and when. No separate audit table: that history is the timestamps on the record itself.
+
+![The My submissions screen with a document selected: a panel on the right shows the approved badge, the file and its size, the context the submitter wrote, the reviewer's feedback signed by Sam Patel with a timestamp, and an activity trail listing approved then submitted, each with a name and time](docs/screenshots/submitter-detail.png)
 
 ### Links
 
