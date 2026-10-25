@@ -8,6 +8,18 @@ Two roles, three states, one legal transition. That is the whole product, and ke
 - **Frontend:** React 19, TypeScript, Vite
 - **Database, auth and file storage:** Supabase (PostgreSQL, Supabase Auth, private Storage bucket)
 
+### What it looks like
+
+Two roles, two different screens. Both of these are the live deployment, not a mockup.
+
+**A submitter sees their own documents and nothing else,** each one carrying its status, with filters and counts across the top.
+
+![The My submissions screen: a table of seven documents, each with an approved, pending or rejected badge and the date it was submitted, above it filter chips reading All, Pending, Approved and Rejected with counts](docs/screenshots/submitter.png)
+
+**A reviewer reads the document in the browser and decides beside it.** Feedback is optional when approving and required when rejecting, and the activity trail records who did what and when.
+
+![A reviewer viewing a submitted expense claim: the document is rendered in the left pane, and a panel on the right holds the submitter's context, a feedback box, Approve and Reject buttons, and an activity trail](docs/screenshots/reviewer.png)
+
 ### Links
 
 | | |
